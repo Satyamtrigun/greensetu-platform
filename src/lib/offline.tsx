@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
 export type SyncState = "synced" | "waiting" | "failed";
 
@@ -25,13 +25,17 @@ export type QueuedLot = {
   createdAt: number;
 };
 
+type FlushFn = () => Promise<void>;
+
 type OfflineCtx = {
   online: boolean;
   syncState: SyncState;
   queue: QueuedLot[];
   enqueueLot: (lot: Omit<QueuedLot, "localId" | "createdAt">) => void;
-  removeQueued: (localId: string) => void;
+  markSynced: (localId: string) => void;
   flush: () => Promise<void>;
+  registerFlusher: (fn: FlushFn) => void;
+  setSyncState: (s: SyncState) => void;
 };
 
 const Ctx = createContext<OfflineCtx>({
@@ -39,8 +43,10 @@ const Ctx = createContext<OfflineCtx>({
   syncState: "synced",
   queue: [],
   enqueueLot: () => {},
-  removeQueued: () => {},
+  markSynced: () => {},
   flush: async () => {},
+  registerFlusher: () => {},
+  setSyncState: () => {},
 });
 
 const KEY = "gs_offline_queue_v1";
@@ -67,33 +73,20 @@ export function OfflineProvider({ children }: { children: ReactNode }) {
     typeof navigator !== "undefined" ? navigator.onLine : true,
   );
   const [queue, setQueue] = useState<QueuedLot[]>(() => readQueue());
-  const [syncState, setSyncState] = useState<SyncState>(() => {
-    const q = readQueue();
-    if (q.length === 0) return "synced";
-    return typeof navigator !== "undefined" && navigator.onLine ? "waiting" : "waiting";
-  });
-  const [onlineEverFailed, setOnlineEverFailed] = useState(false);
+  const [syncState, setSyncState] = useState<SyncState>(() =>
+    readQueue().length > 0 ? "waiting" : "synced",
+  );
+  const flusherRef = useRef<FlushFn | null>(null);
 
   useEffect(() => {
-    const goOnline = () => {
-      setOnline(true);
-      setOnlineEverFailed(false);
-    };
-    const goOffline = () => {
-      setOnline(false);
-      setOnlineEverFailed(true);
-    };
+    const goOnline = () => setOnline(true);
+    const goOffline = () => setOnline(false);
     window.addEventListener("online", goOnline);
     window.addEventListener("offline", goOffline);
     return () => {
       window.removeEventListener("online", goOnline);
       window.removeEventListener("offline", goOffline);
     };
-  }, []);
-
-  const persist = useCallback((next: QueuedLot[]) => {
-    setQueue(next);
-    writeQueue(next);
   }, []);
 
   const enqueueLot = useCallback(
@@ -104,85 +97,47 @@ export function OfflineProvider({ children }: { children: ReactNode }) {
         createdAt: Date.now(),
       };
       const next = [entry, ...readQueue()];
-      persist(next);
+      setQueue(next);
+      writeQueue(next);
+      setSyncState("waiting");
     },
-    [persist],
+    [],
   );
 
-  const removeQueued = useCallback(
-    (localId: string) => {
-      persist(readQueue().filter((q) => q.localId !== localId));
-    },
-    [persist],
-  );
-
-  const flush = useCallback(async () => {
-    if (!navigator.onLine) return;
-    setSyncState("waiting");
-    try {
-      // Dynamic import keeps the offline provider decoupled from Convex until needed.
-      const { api } = await import("@/convex/_generated/api");
-      const { anyApi } = await import("convex/server");
-      // Use the plain Convex client fetch path via existing provider's client
-      // We avoid importing useConvexClient hook here (non-hook context), so use
-      // the public mutation endpoint through a fresh client bound to the same URL.
-      const { ConvexHttpClient } = await import("convex/browser");
-      const client = new ConvexHttpClient(import.meta.env.VITE_CONVEX_URL as string);
-
-      const q = readQueue();
-      let failed = 0;
-      for (const item of q) {
-        try {
-          await client.mutation((anyApi.lots as any).create, {
-            lotId: item.lotId,
-            demo: false,
-            material: item.material,
-            materialLabel: item.materialLabel,
-            subcategory: item.subcategory,
-            description: item.description,
-            photoPreview: item.photoPreview,
-            weightKg: item.weightKg,
-            condition: item.condition,
-            estimatedValue: item.estimatedValue,
-            marketRate: item.marketRate,
-            city: item.city,
-            locationLabel: item.locationLabel,
-            lat: item.lat,
-            lng: item.lng,
-            recyclerId: item.recyclerId,
-            recyclerName: item.recyclerName,
-            quotedRate: item.quotedRate,
-            anomalyFlag: item.anomalyFlag,
-          });
-        } catch {
-          failed++;
-        }
-      }
-      if (failed === 0) {
-        writeQueue([]);
-        setQueue([]);
-        setSyncState("synced");
-      } else {
-        setSyncState("failed");
-      }
-    } catch {
-      setSyncState("failed");
-    }
+  const markSynced = useCallback((localId: string) => {
+    const next = readQueue().filter((q) => q.localId !== localId);
+    setQueue(next);
+    writeQueue(next);
+    if (next.length === 0) setSyncState("synced");
   }, []);
 
-  // Auto flush when coming back online
+  const registerFlusher = useCallback((fn: FlushFn) => {
+    flusherRef.current = fn;
+  }, []);
+
+  const flush = useCallback(async () => {
+    if (flusherRef.current) await flusherRef.current();
+  }, []);
+
+  // Auto flush when back online
   useEffect(() => {
-    if (online && readQueue().length > 0) {
+    if (online && queue.length > 0) {
       void flush();
     }
-    if (online && readQueue().length === 0) {
-      setSyncState(onlineEverFailed ? "failed" : "synced");
-    }
-  }, [online, flush, onlineEverFailed]);
+  }, [online, queue.length, flush]);
 
   const value = useMemo(
-    () => ({ online, syncState, queue, enqueueLot, removeQueued, flush }),
-    [online, syncState, queue, enqueueLot, removeQueued, flush],
+    () => ({
+      online,
+      syncState,
+      queue,
+      enqueueLot,
+      markSynced,
+      flush,
+      registerFlusher,
+      setSyncState,
+    }),
+    [online, syncState, queue, enqueueLot, markSynced, flush, registerFlusher],
   );
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;

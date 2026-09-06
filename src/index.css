@@ -40,76 +40,79 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --color-eco: var(--eco);
 }
 
-/* CHANGE VALUES FOR THEME */
+/* CHANGE VALUES FOR THEME — GreenSetu green sustainability theme */
 :root {
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  --background: #f7faf7;
+  --foreground: #17352a;
+  --card: #ffffff;
+  --card-foreground: #17352a;
+  --popover: #ffffff;
+  --popover-foreground: #17352a;
+  --primary: #0b5d3b;
+  --primary-foreground: #f2faf4;
+  --secondary: #e9f4ec;
+  --secondary-foreground: #0b5d3b;
+  --muted: #eef4ee;
+  --muted-foreground: #5c7268;
+  --accent: #8bc34a;
+  --accent-foreground: #17352a;
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --border: #dce7dd;
+  --input: #d3e2d5;
+  --ring: #22a447;
+  --eco: #22a447;
+  --chart-1: #0b5d3b;
+  --chart-2: #22a447;
+  --chart-3: #8bc34a;
+  --chart-4: #4a6fa5;
+  --chart-5: #c2703d;
+  --sidebar: #f2faf4;
+  --sidebar-foreground: #17352a;
+  --sidebar-primary: #0b5d3b;
+  --sidebar-primary-foreground: #f2faf4;
+  --sidebar-accent: #e9f4ec;
+  --sidebar-accent-foreground: #0b5d3b;
+  --sidebar-border: #dce7dd;
+  --sidebar-ring: #22a447;
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
+  --background: #0c1f16;
+  --foreground: #e4f0e6;
+  --card: #122a1e;
+  --card-foreground: #e4f0e6;
+  --popover: #122a1e;
+  --popover-foreground: #e4f0e6;
+  --primary: #34c06a;
+  --primary-foreground: #06130c;
+  --secondary: #1a3828;
+  --secondary-foreground: #cfe8d4;
+  --muted: #1a3828;
+  --muted-foreground: #93ab9c;
+  --accent: #8bc34a;
+  --accent-foreground: #06130c;
   --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --border: rgb(255 255 255 / 10%);
+  --input: rgb(255 255 255 / 15%);
+  --ring: #34c06a;
+  --eco: #34c06a;
+  --chart-1: #34c06a;
+  --chart-2: #8bc34a;
+  --chart-3: #6f9fd8;
+  --chart-4: #d89b6f;
+  --chart-5: #b088d8;
+  --sidebar: #122a1e;
+  --sidebar-foreground: #e4f0e6;
+  --sidebar-primary: #34c06a;
+  --sidebar-primary-foreground: #06130c;
+  --sidebar-accent: #1a3828;
+  --sidebar-accent-foreground: #cfe8d4;
+  --sidebar-border: rgb(255 255 255 / 10%);
+  --sidebar-ring: #34c06a;
 }
 
 @layer base {
@@ -123,4 +126,13 @@
   [role="button"]:not([disabled]) {
     cursor: pointer;
   }
+}
+
+/* Leaflet integration */
+.leaflet-container {
+  font: inherit;
+  z-index: 0;
+}
+.leaflet-popup-content-wrapper {
+  border-radius: 0.75rem;
 }

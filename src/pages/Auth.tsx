@@ -19,7 +19,6 @@ import logo from "@/assets/logo.svg";
 import { ArrowRight, Loader2, Mail, UserX } from "lucide-react";
 import { Suspense, useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router";
-
 interface AuthProps {
   redirectAfterAuth?: string;
 }
